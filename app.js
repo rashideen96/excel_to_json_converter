@@ -1,6 +1,7 @@
 const multer = require('multer');
 const express = require('express');
 const path = require('path');
+const cors = require('cors');
 const file_routes = require('./routes/file');
 
 const app = express();
@@ -21,12 +22,7 @@ const filter = (req, file, cb) => {
 app.use(multer({ storage: storage, fileFilter: filter }).single('file'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use((req, res, next) => {
-	res.setHeader('Access-Control-Allow-Origin', '*');
-	res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
-	res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
-	next();
-});
+app.use(cors());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(file_routes);
 
