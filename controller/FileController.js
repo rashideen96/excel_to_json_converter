@@ -32,6 +32,7 @@ const remove_file = (file) => {
 	});
 };
 
+
 exports.upload = async (req, res, next) => {
 	if (!req.file) {
 		res.send('File is required');
@@ -41,31 +42,23 @@ exports.upload = async (req, res, next) => {
 		const object_data = await convert_excel_to_json(req.file.path);
 		await json_file.writeFile('./json/data.json', object_data, { spaces: 2 });
 		const read_file = await json_file.readFile('./json/data.json');
+		const obj_key = Object.keys(read_file);
+		const return_data = obj_key.map((key, i) => {
+			return {
+				tablename: key,
+				table: read_file[key],
+				total: read_file[key].length
+			}
+		})
 
-		res.status(200).json({ data: read_file });
+		res.status(200).json({ data: return_data });
+		await json_file.writeFile('./json/data1.json', return_data, { spaces: 2 });
 		const rm_res = await remove_file(req.file.path);
 		console.log(rm_res);
 	} catch (err) {
 		console.log(err.message);
 	}
 
-	
-
-	// convert_excel_to_json(req.file.path)
-	// 	.then((result) => {
-			
-	// 		return json_file.writeFile('./json/data.json', result, { spaces: 2 });
-	// 	})
-	// 	.then((result) => {
-	// 		console.log(result);
-	// 		return remove_file(req.file.path);
-	// 	})
-	// 	.then((result) => {
-	// 		console.log(result);
-	// 	})
-	// 	.catch((err) => {
-	// 		console.log(err);
-	// 	});
 };
 
 exports.index = (req, res, next) => {
@@ -75,13 +68,10 @@ exports.index = (req, res, next) => {
 exports.getData = async (req, res, next) => {
 
 	try {
-		const result = await json_file.readFile('./json/data.json');
+		const result = await json_file.readFile('./json/data1.json');
 		res.status(200).json({ data: result });
 	} catch (err) {
 		console.log(err)
 	}
-	// json_file.readFile('./json/data.json', (err, data) => {
-	// 	if (err) throw err;
-	// 	res.status(200).json({ data: data });
-	// });
+	
 };
